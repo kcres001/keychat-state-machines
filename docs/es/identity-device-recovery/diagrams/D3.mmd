@@ -1,0 +1,17 @@
+flowchart TD
+  U(("El usuario restaura Ark desde la frase mnemónica")) --> REG["Cuenta registrada<br/>reserva None, recovery_pending"]
+  REG -->|"[Servidor] escanear épocas"| Q{"Resultado"}
+  Q -->|"todo completo"| OK["Restored"]
+  Q -->|"sin registro en el servidor"| NF["NotFound"]
+  Q -->|"servidor no disponible"| UA["Unavailable"]
+  Q -->|"cambió la identidad del servidor"| IC["IdentityChanged"]
+  Q -->|"alguna época incompleta"| IN["Incomplete<br/>operaciones cooperativas en pausa"]
+  IN -->|"[Usuario] recuperar de nuevo"| REG
+  REG -->|"[Usuario] ampliar el escaneo de claves"| KS["KeyScan<br/>Ready → LimitReached / CandidatesMatched"]
+  class OK,NF,UA,IC term
+  class IN,KS user
+  class Q gate
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

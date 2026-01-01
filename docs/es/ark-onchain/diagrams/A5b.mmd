@@ -1,0 +1,15 @@
+flowchart TD
+  MI["Idle / Disabled"] -->|"[Mantenimiento] vence, plan aprobado"| MRd["Ready"]
+  MI -->|"[Mantenimiento] el plan requiere al usuario"| MH["AuthorizationRequired / ManualReview / NeedsFunds"]
+  MH -->|"[Usuario] autorizar / revisar / añadir fondos"| MRd
+  MRd -->|"[Mantenimiento] enviar"| MRf["Refreshing"]
+  MRf -->|"[Servidor] evidencia Succeeded / Rejected"| MI
+  MRf -->|"[Local] fallo, sin envío pendiente"| MRt["Retrying<br/>espera de 60 s → 30 min"]
+  MRt -->|"[Mantenimiento / red restablecida]"| MRd
+  MRf -->|"[Local] resultado del envío desconocido"| MRq["RecoveryRequired<br/>recuperar antes de enviar"]
+  MRq -->|"[Servidor] llega la evidencia"| MI
+  class MH,MRq user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

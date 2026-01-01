@@ -1,0 +1,15 @@
+flowchart TD
+  B0(("El usuario inicia la restauración")) --> PP["preparing / prepared<br/>área de preparación, datos originales intactos"]
+  PP --> RSd["replacement_started"]
+  RSd --> RI["restored_data_installed"]
+  RI --> V["validated"]
+  V --> CM["committed"]
+  PP -.->|"[Recuperación al inicio] fallo → limpiar el área de preparación"| CLN["Se conservan los datos originales"]
+  RSd -.->|"[Recuperación al inicio] fallo → revertir a la instantánea"| RBK["Revertido, diario marcado committed"]
+  RI -.->|"[Recuperación al inicio]"| RBK
+  V -.->|"[Recuperación al inicio]"| RBK
+  class CM,CLN,RBK term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

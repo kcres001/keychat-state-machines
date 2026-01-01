@@ -1,0 +1,17 @@
+flowchart TD
+  U(("ユーザーがニーモニックから Ark を復元")) --> REG["アカウント登録<br/>予約は None、recovery_pending"]
+  REG -->|"【サーバー】エポックをスキャン"| Q{"結果"}
+  Q -->|"すべて完了"| OK["Restored"]
+  Q -->|"サーバーに記録なし"| NF["NotFound"]
+  Q -->|"サーバー利用不可"| UA["Unavailable"]
+  Q -->|"サーバーの身元が変化"| IC["IdentityChanged"]
+  Q -->|"一部のエポックが未完了"| IN["Incomplete<br/>協調操作は一時停止"]
+  IN -->|"【ユーザー】再度復旧"| REG
+  REG -->|"【ユーザー】鍵スキャンを拡大"| KS["KeyScan<br/>Ready → LimitReached / CandidatesMatched"]
+  class OK,NF,UA,IC term
+  class IN,KS user
+  class Q gate
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

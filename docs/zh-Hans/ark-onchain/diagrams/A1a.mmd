@@ -1,0 +1,21 @@
+flowchart TD
+  D0(("开始")) -->|"【用户】报价"| DR["Reviewing<br/>未签名 PSBT，300 秒有效"]
+  DR -->|"【用户】确认：签名并登记到 BDK"| DS["Submitting"]
+  DS -->|"【链源】见于内存池"| DB["Broadcast"]
+  DS -->|"【链源】查询失败或看不到"| DU["Unknown"]
+  DB -->|"【链】确认"| DC["Completed"]
+  DU -->|"【维护 / 轮询】重播成功"| DB
+  DU -->|"【链】确认"| DC
+  DB -->|"【链源】掉出内存池"| DU
+  DC -->|"【链】重组"| DU
+  DB -->|"【用户】请求加速"| AR["加速报价 Reviewing<br/>300 秒有效"]
+  AR -->|"【用户】取消"| DB
+  AR -->|"【用户】确认：签名替换交易"| DB
+  DS -.- DSL1(["⟲ 【启动恢复】重新登记，看不到则重播"])
+  class DSL1 loop
+  class DC term
+  class DR,AR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

@@ -1,0 +1,15 @@
+flowchart TD
+  U(("使用者確認刪除身份")) --> P1["PlatformCredentialPending<br/>寫入刪除計劃，結束進行中通話"]
+  P1 -->|"【使用者】回滾（僅此階段）"| RB["刪除取消"]
+  P1 -->|"【平臺】確認鑰匙串憑據已刪"| P2["CoreFinalizePending"]
+  P2 -->|"【本地】Core 清理完成"| DONE["刪除完成"]
+  P2 -.- P2L1(["⟲ 【本地】中斷後繼續"])
+  class P2L1 loop
+  L(("舊版刪除流程")) --> L1["LegacyCorePending"]
+  L1 --> L2["LegacyPlatformSecretPending"]
+  L2 -->|"【使用者】確認舊秘密已刪"| DONE
+  class DONE,RB term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

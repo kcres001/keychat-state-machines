@@ -1,0 +1,15 @@
+flowchart TD
+  H0(("用户确认金额")) --> P0["Preparing<br/>未动资金"]
+  P0 -->|"【mint】Cashu saga 开始"| PC["Preparing · 有 provider 操作"]
+  PC -->|"【用户】继续：从 saga 找回 token"| PD["Prepared<br/>资金已离开钱包"]
+  PC -.-|"【用户】删除该 mint 时记录一并删除"| DEL["交接记录删除"]
+  P0 -->|"【用户】Ark 转账"| PA["Preparing · Ark 结果未知"]
+  PA -->|"【用户】输入交易 ID 对账"| PD
+  PA -->|"【用户】确认未发出后放弃"| DEL
+  PD -->|"【用户】把消息交给发送器"| DONE["交接完成"]
+  class DONE,DEL term
+  class PC,PA user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

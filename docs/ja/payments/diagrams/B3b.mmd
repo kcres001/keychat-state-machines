@@ -1,0 +1,17 @@
+flowchart TD
+  M0(("支払いメッセージを受信")) --> AV["Available"]
+  AV -->|"【受取人】受け取り：先に段階を記録"| ACC["Accepting<br/>受け取り中、再試行可能"]
+  ACC -->|"【ミント】償還、受領通知を送信"| ACD["Accepted"]
+  AV -->|"【相手】受領通知：受け取り済み / 返金済み"| ACD
+  ACC -->|"【相手】受領通知：受け取り済み / 返金済み"| ACD
+  ACC -.- ACCL1(["⟲ 【ミント】償還失敗 → 再試行"])
+  class ACCL1 loop
+  AV -->|"【送信者】紅包の期限後に返金"| RF["Refunding<br/>UI が自動再開"]
+  RF -->|"【ミント】自己償還、受領通知を送信"| RFD["Refunded"]
+  RF -->|"【ミント】既に受け取られた"| SU["SpentUnattributed（送信者）"]
+  class ACD,RFD,SU term
+  class ACC,RF user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

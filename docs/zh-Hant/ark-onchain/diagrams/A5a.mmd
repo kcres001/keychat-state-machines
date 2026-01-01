@@ -1,0 +1,22 @@
+flowchart TD
+  SW["NonInteractivePending · 計劃等待<br/>輸入未鎖"]
+  SW -->|"【鏈】到達目標高度"| DP
+  SW -->|"【使用者】強退時撤回"| RET["撤回"]
+  SUB(("提交委託重新整理")) --> DP["NonInteractivePending · 委託等待<br/>輸入鎖定，計入 pending_in_round"]
+  DP -.- DPL1(["⟲ 【伺服器】等待出輪次"])
+  class DPL1 loop
+  DP -->|"【伺服器】出輪次"| FIN
+  IS(("互動式提交")) --> IP["InteractivePending"]
+  IP -->|"【伺服器】輪次開始"| IO["InteractiveOngoing"]
+  IP -->|"【本地】輸入丟失且無法縮減"| CAN["Canceled"]
+  IO -->|"【伺服器】互動完成"| FIN["Finished<br/>等待資金交易確認"]
+  IO -->|"【伺服器】失敗"| FAIL["Failed"]
+  FIN -.- FINL2(["⟲ 【鏈】等待確認"])
+  class FINL2 loop
+  FIN -->|"【鏈】確認 + forfeit 完成"| OK["Confirmed<br/>新 VTXO"]
+  class OK,FAIL,CAN,RET term
+  class SW user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

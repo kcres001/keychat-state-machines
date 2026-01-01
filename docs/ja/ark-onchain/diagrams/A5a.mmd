@@ -1,0 +1,22 @@
+flowchart TD
+  SW["NonInteractivePending · 予定待機<br/>入力ロックなし"]
+  SW -->|"【チェーン】目標高さに到達"| DP
+  SW -->|"【ユーザー】強制退出のため撤回"| RET["撤回"]
+  SUB(("委任リフレッシュを提出")) --> DP["NonInteractivePending · 委任<br/>入力ロック、pending_in_round に計上"]
+  DP -.- DPL1(["⟲ 【サーバー】ラウンド待ち"])
+  class DPL1 loop
+  DP -->|"【サーバー】ラウンド発行"| FIN
+  IS(("対話型の提出")) --> IP["InteractivePending"]
+  IP -->|"【サーバー】ラウンド開始"| IO["InteractiveOngoing"]
+  IP -->|"【ローカル】入力喪失、縮小不可"| CAN["Canceled"]
+  IO -->|"【サーバー】対話完了"| FIN["Finished<br/>資金 tx の確定待ち"]
+  IO -->|"【サーバー】失敗"| FAIL["Failed"]
+  FIN -.- FINL2(["⟲ 【チェーン】確定待ち"])
+  class FINL2 loop
+  FIN -->|"【チェーン】確定 + forfeit 完了"| OK["Confirmed<br/>新しい VTXO"]
+  class OK,FAIL,CAN,RET term
+  class SW user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

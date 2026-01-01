@@ -1,0 +1,18 @@
+flowchart TD
+  D(("有料リレーにメッセージを配信")) -->|"【ローカル】郵送料トークンを作成"| CR["Created<br/>トークンをリレーに渡した"]
+  D -->|"リレーは無料"| NR["NotRequired"]
+  CR -->|"【リレー】OK"| OKD["配信成功"]
+  CR -->|"【リレー】失敗 / タイムアウト / OK なし"| FD["配信失敗"]
+  FD -->|"【ユーザー】詳細を開く"| AV["Available"]
+  FD -->|"一意に対応する送金なし"| UA["Unavailable"]
+  AV -->|"【ユーザー】回収：配信行を終了状態にし、意図を永続化"| PRC["Processing"]
+  PRC -->|"【ミント】全証明が使用済み"| UA
+  PRC -.- PRCL1(["⟲ 【ミント】到達不能 / 不明 → ユーザーが再試行"])
+  class PRCL1 loop
+  PRC -->|"【ミント】交換完了"| RC["Reclaimed"]
+  class OKD,NR,UA,RC term
+  class PRC user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

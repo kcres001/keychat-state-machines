@@ -1,0 +1,15 @@
+flowchart TD
+  U(("El usuario envía una solicitud de amistad")) --> P["Pending<br/>en el planificador de reintentos"]
+  P -->|"[Relay] aceptada"| PB["Published"]
+  P -->|"[Usuario] retirar"| C["Retirada"]
+  PB -->|"[Usuario] retirar"| C
+  P -->|"[Usuario] nueva solicitud al mismo participante"| SP["Sustituida"]
+  PB -->|"[Otro participante] acepta"| OK["Contacto"]
+  PB -.- PBL1(["⟲ [Otro participante] sin respuesta → esperar"])
+  class PBL1 loop
+  class OK,C,SP term
+  class PB user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

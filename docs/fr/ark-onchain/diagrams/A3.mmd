@@ -1,0 +1,18 @@
+flowchart TD
+  N(("Nouveau compte enregistré")) --> I["Idle · Some(0)"]
+  RC(("Compte récupéré enregistré")) --> UN["Unavailable · None<br/>envois directs et onboards du réseau indisponibles"]
+  I -->|"[Maintenance] sortie présente, estimable"| A["Active · Some(n)<br/>n sat déduits du solde disponible"]
+  I -->|"[Maintenance] première sortie détectée, estimation échouée"| UN
+  A -->|"[Maintenance] estimation échouée, dernière valeur fiable conservée"| US["Unavailable · Some(dernière valeur)"]
+  US -->|"[Maintenance] réestimé"| A
+  A -->|"[Maintenance] aucune sortie à réclamer"| I
+  UN -->|"[Maintenance] estimation complète"| A
+  A -->|"[Récupération] nouvelle sortie récupérée"| PR["Sorties récupérées en attente d'enregistrement"]
+  PR -->|"[Maintenance] points de contrôle Bark complets"| A
+  A -.- AL1(["⟲ [Utilisateur] sortie forcée : écrire d'abord la nouvelle réserve ; annuler si non enregistrée"])
+  class AL1 loop
+  class I term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

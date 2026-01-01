@@ -1,0 +1,22 @@
+flowchart TD
+  SW["NonInteractivePending · attente planifiée<br/>entrées non verrouillées"]
+  SW -->|"[Chaîne] hauteur cible atteinte"| DP
+  SW -->|"[Utilisateur] retirée pour la sortie forcée"| RET["Retirée"]
+  SUB(("Soumettre un rafraîchissement délégué")) --> DP["NonInteractivePending · délégué<br/>entrées verrouillées, comptées dans pending_in_round"]
+  DP -.- DPL1(["⟲ [Serveur] en attente d'un round"])
+  class DPL1 loop
+  DP -->|"[Serveur] round émis"| FIN
+  IS(("Soumission interactive")) --> IP["InteractivePending"]
+  IP -->|"[Serveur] le round commence"| IO["InteractiveOngoing"]
+  IP -->|"[Local] entrées perdues, réduction impossible"| CAN["Canceled"]
+  IO -->|"[Serveur] interaction terminée"| FIN["Finished<br/>en attente de confirmation de la tx de financement"]
+  IO -->|"[Serveur] échec"| FAIL["Failed"]
+  FIN -.- FINL2(["⟲ [Chaîne] en attente de confirmation"])
+  class FINL2 loop
+  FIN -->|"[Chaîne] confirmée + forfeits terminés"| OK["Confirmed<br/>nouveaux VTXO"]
+  class OK,FAIL,CAN,RET term
+  class SW user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

@@ -1,0 +1,15 @@
+flowchart TD
+  U(("L'utilisateur envoie une demande d'ami")) --> P["Pending<br/>dans le planificateur de nouvelles tentatives"]
+  P -->|"[Relais] acceptée"| PB["Published"]
+  P -->|"[Utilisateur] retirer"| C["Retirée"]
+  PB -->|"[Utilisateur] retirer"| C
+  P -->|"[Utilisateur] nouvelle demande au même correspondant"| SP["Remplacée"]
+  PB -->|"[Correspondant] accepte"| OK["Contact"]
+  PB -.- PBL1(["⟲ [Correspondant] pas de réponse → attendre"])
+  class PBL1 loop
+  class OK,C,SP term
+  class PB user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

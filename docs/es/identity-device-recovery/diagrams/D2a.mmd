@@ -1,0 +1,13 @@
+flowchart TD
+  C["Checking"] --> SR["SetupRequired<br/>crear o restaurar"]
+  C --> AR["ActivationRequired"]
+  C --> RR["RecoveryRequired · con motivo"]
+  C --> RD["Ready<br/>se ejecuta cuando stopped_reason=None"]
+  AR -->|"[Usuario] activar"| RD
+  SR -->|"[Usuario] crear / restaurar"| RD
+  class RD term
+  class SR,AR,RR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

@@ -1,0 +1,19 @@
+flowchart TD
+  S0(("用户确认支付")) --> SS["Start / InputsLocked<br/>输入锁定"]
+  SS -->|"【服务器】拒绝"| SF["Failed<br/>输入释放"]
+  SS -->|"【本地】临近到期仍未开始"| SF
+  SS -->|"【服务器】联签 HTLC"| HR["HtlcReceived<br/>计入 pending_lightning_send"]
+  HR -->|"【服务器】受理"| PI["PaymentInitiated"]
+  PI -->|"【服务器】成功，返回原像"| PAID["Paid"]
+  PI -.- PIL1(["⟲ 【服务器】Pending"])
+  class PIL1 loop
+  PI -->|"【服务器】失败，或【链】临近 HTLC 到期"| RV["RevocableHtlcs"]
+  RV -->|"【服务器】联签撤回"| BACK["撤回完成<br/>回到可花 VTXO"]
+  RV -->|"【服务器】拒绝撤回"| STK["RevocationStuck"]
+  STK -.- STKL2(["⟲ 【服务器】仍拒绝 → 重试 / 停泊"])
+  class STKL2 loop
+  class PAID,BACK,SF term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

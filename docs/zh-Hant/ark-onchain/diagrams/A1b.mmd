@@ -1,0 +1,21 @@
+flowchart TD
+  O0(("開始")) -->|"【使用者】報價"| OR["Reviewing"]
+  OR -->|"【使用者】確認：簽名，輸入加鎖"| OS["Submitting<br/>輸入鎖定"]
+  OS -->|"【伺服器】未返回聯籤"| OU["Unknown<br/>輸入鎖定"]
+  OS -->|"【伺服器】條款變化"| OF1["Failed<br/>輸入鎖定"]
+  OU -->|"【伺服器】條款變化"| OF1
+  OU -->|"【伺服器】聯籤"| BB
+  OS -->|"【伺服器】聯籤並驗證"| BB["Bark Broadcasting<br/>VTXO 以 Locked 存庫"]
+  BB -->|"【鏈】見到上鍊"| BC["Bark Confirming<br/>顯示 Broadcast → WaitingForArk"]
+  BC -->|"【伺服器】登記成功"| OC["Completed<br/>在 Ark"]
+  BC -.- BCL1(["⟲ 【伺服器】登記失敗 → 重試"])
+  class BCL1 loop
+  BC -->|"【維護】臨近到期，自動退出"| OF2["Failed<br/>資金進入退出流程"]
+  BB -->|"【鏈】輸入被衝突交易花費"| OF3["Failed<br/>資金未離開"]
+  BC -->|"【鏈】輸入被衝突交易花費"| OF3
+  class OC,OF1,OF2,OF3 term
+  class OR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

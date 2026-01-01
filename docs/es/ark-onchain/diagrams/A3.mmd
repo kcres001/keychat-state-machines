@@ -1,0 +1,18 @@
+flowchart TD
+  N(("Cuenta nueva registrada")) --> I["Idle · Some(0)"]
+  RC(("Cuenta recuperada registrada")) --> UN["Unavailable · None<br/>envíos directos y onboards de la red no disponibles"]
+  I -->|"[Mantenimiento] hay salida, estimable"| A["Active · Some(n)<br/>n sat restados del saldo disponible"]
+  I -->|"[Mantenimiento] primera salida detectada, estimación fallida"| UN
+  A -->|"[Mantenimiento] estimación fallida, se conserva el último valor fiable"| US["Unavailable · Some(último valor)"]
+  US -->|"[Mantenimiento] reestimado"| A
+  A -->|"[Mantenimiento] sin salidas por reclamar"| I
+  UN -->|"[Mantenimiento] estimación completa"| A
+  A -->|"[Recuperación] nueva salida recuperada"| PR["Salidas recuperadas pendientes de registro"]
+  PR -->|"[Mantenimiento] checkpoints de Bark completos"| A
+  A -.- AL1(["⟲ [Usuario] salida forzada: escribir primero la nueva reserva; revertir si no se registró"])
+  class AL1 loop
+  class I term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

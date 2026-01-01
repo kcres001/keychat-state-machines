@@ -1,0 +1,18 @@
+flowchart TD
+  N(("新規アカウント登録")) --> I["Idle · Some(0)"]
+  RC(("復旧アカウント登録")) --> UN["Unavailable · None<br/>そのネットワークの直接送金と onboard は利用不可"]
+  I -->|"【メンテナンス】退出あり、見積もり可能"| A["Active · Some(n)<br/>n sat を利用可能残高から差し引く"]
+  I -->|"【メンテナンス】初めて退出を発見、見積もり失敗"| UN
+  A -->|"【メンテナンス】見積もり失敗、最後の信頼値を保持"| US["Unavailable · Some(前回値)"]
+  US -->|"【メンテナンス】再見積もり済み"| A
+  A -->|"【メンテナンス】未請求の退出なし"| I
+  UN -->|"【メンテナンス】完全な見積もり"| A
+  A -->|"【復旧】新しい退出を復旧"| PR["登録待ちの復旧済み退出"]
+  PR -->|"【メンテナンス】Bark のチェックポイント完了"| A
+  A -.- AL1(["⟲ 【ユーザー】強制退出：先に新しい予約を書き込む。記録されなければロールバック"])
+  class AL1 loop
+  class I term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

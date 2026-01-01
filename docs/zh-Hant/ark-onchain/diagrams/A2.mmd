@@ -1,0 +1,29 @@
+flowchart TD
+  Q(("開始")) -->|"【使用者】確認報價"| ST["Start<br/>顯示 Preparing"]
+  ST -->|"【本地】鎖定輸入"| SP["SplitWithArkoor"]
+  ST -->|"【本地】鎖定失敗"| F1["Failed"]
+  SP -->|"【伺服器】arkoor 聯籤，原輸入標為已花"| ARR["ArkoorRegistrationRequired<br/>傳送 VTXO 與找零由動作鎖定"]
+  SP -->|"【伺服器】拒絕"| F2["Failed<br/>輸入釋放"]
+  ARR -->|"【伺服器】登記成功，找零解鎖"| RFO["ReadyForOffboard"]
+  ARR -.- ARRL1(["⟲ 【伺服器】登記失敗 → 重試"])
+  class ARRL1 loop
+  RFO -->|"【伺服器】構建 offboard 交易"| OTP["OffboardTxPrepared"]
+  RFO -->|"【伺服器】拒絕"| F2
+  OTP -->|"【伺服器】交換 forfeit"| RFB["ReadyForBroadcast"]
+  OTP -->|"【伺服器】會話丟失，交易已上鍊"| AC
+  OTP -->|"【伺服器】會話丟失，交易未上鍊"| RFOP["ReadyForOffboard<br/>帶 prior_txid"]
+  RFOP -->|"【伺服器】因費率等拒絕"| F2
+  RFOP -.- RFOPL2(["⟲ 【伺服器】其他拒絕 → 停泊，繼續查詢舊交易"])
+  class RFOPL2 loop
+  RFOP -->|"【鏈】舊交易出現"| AC
+  RFB -->|"【本地】廣播"| AC["AwaitingConfirmations<br/>顯示 Broadcast"]
+  RFB -.- RFBL3(["⟲ 【伺服器】拒絕 → 停泊"])
+  class RFBL3 loop
+  AC -->|"【鏈】確認"| OK["Confirmed"]
+  AC -.- ACL4(["⟲ 【鏈源】長期看不到 → 停泊，輸入保持鎖定"])
+  class ACL4 loop
+  class OK,F1,F2 term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

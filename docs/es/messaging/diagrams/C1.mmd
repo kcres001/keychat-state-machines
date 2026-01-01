@@ -1,0 +1,15 @@
+flowchart TD
+  A(("El usuario envía")) --> J["Trabajo de envío<br/>Fetching / Uploading / Preparing"]
+  J -->|"[Local] código de error final"| F["Failed"]
+  J -.- JL1(["⟲ [Sesión / grupo] fallo reintentable → espera de 1 s…60 s"])
+  class JL1 loop
+  J -->|"[Usuario] cancelar (Text / Files, aún sin evento de transporte)"| CX["Cancelado"]
+  J -->|"[Local] entregar al transporte"| S["Sending<br/>eventos de transporte + filas por relay"]
+  S -->|"[Relay] la unidad principal tuvo éxito"| OK["Succeeded"]
+  S -->|"[Relay] final según la política de transporte"| TF["Failed<br/>reintento manual"]
+  J -->|"[Usuario] borrar conversación / identidad"| GONE["Trabajo borrado"]
+  class OK,TF,F,CX,GONE term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

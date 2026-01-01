@@ -1,0 +1,21 @@
+flowchart TD
+  O0(("Début")) -->|"[Utilisateur] devis"| OR["Reviewing"]
+  OR -->|"[Utilisateur] confirmer : signer, verrouiller les entrées"| OS["Submitting<br/>entrées verrouillées"]
+  OS -->|"[Serveur] pas encore de cosignature"| OU["Unknown<br/>entrées verrouillées"]
+  OS -->|"[Serveur] conditions modifiées"| OF1["Failed<br/>entrées verrouillées"]
+  OU -->|"[Serveur] conditions modifiées"| OF1
+  OU -->|"[Serveur] cosigne"| BB
+  OS -->|"[Serveur] cosigne, vérifiée"| BB["Bark Broadcasting<br/>VTXO stocké comme Locked"]
+  BB -->|"[Chaîne] vue sur la chaîne"| BC["Bark Confirming<br/>affiché Broadcast → WaitingForArk"]
+  BC -->|"[Serveur] enregistré"| OC["Completed<br/>dans Ark"]
+  BC -.- BCL1(["⟲ [Serveur] échec d'enregistrement → nouvel essai"])
+  class BCL1 loop
+  BC -->|"[Maintenance] proche de l'expiration, sortie automatique"| OF2["Failed<br/>les fonds entrent dans le flux de sortie"]
+  BB -->|"[Chaîne] entrées dépensées par une tx en conflit"| OF3["Failed<br/>les fonds ne sont jamais partis"]
+  BC -->|"[Chaîne] entrées dépensées par une tx en conflit"| OF3
+  class OC,OF1,OF2,OF3 term
+  class OR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

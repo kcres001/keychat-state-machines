@@ -1,0 +1,15 @@
+flowchart TD
+  U(("L'utilisateur confirme la suppression de l'identité")) --> P1["PlatformCredentialPending<br/>plan de suppression écrit, appels actifs terminés"]
+  P1 -->|"[Utilisateur] annuler (uniquement dans cette phase)"| RB["Suppression annulée"]
+  P1 -->|"[Plateforme] identifiants du trousseau supprimés"| P2["CoreFinalizePending"]
+  P2 -->|"[Local] nettoyage Core terminé"| DONE["Suppression terminée"]
+  P2 -.- P2L1(["⟲ [Local] reprendre après interruption"])
+  class P2L1 loop
+  L(("Ancien flux de suppression")) --> L1["LegacyCorePending"]
+  L1 --> L2["LegacyPlatformSecretPending"]
+  L2 -->|"[Utilisateur] confirmer la suppression de l'ancien secret"| DONE
+  class DONE,RB term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

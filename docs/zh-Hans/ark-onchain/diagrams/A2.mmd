@@ -1,0 +1,29 @@
+flowchart TD
+  Q(("开始")) -->|"【用户】确认报价"| ST["Start<br/>显示 Preparing"]
+  ST -->|"【本地】锁定输入"| SP["SplitWithArkoor"]
+  ST -->|"【本地】锁定失败"| F1["Failed"]
+  SP -->|"【服务器】arkoor 联签，原输入标为已花"| ARR["ArkoorRegistrationRequired<br/>发送 VTXO 与找零由动作锁定"]
+  SP -->|"【服务器】拒绝"| F2["Failed<br/>输入释放"]
+  ARR -->|"【服务器】登记成功，找零解锁"| RFO["ReadyForOffboard"]
+  ARR -.- ARRL1(["⟲ 【服务器】登记失败 → 重试"])
+  class ARRL1 loop
+  RFO -->|"【服务器】构建 offboard 交易"| OTP["OffboardTxPrepared"]
+  RFO -->|"【服务器】拒绝"| F2
+  OTP -->|"【服务器】交换 forfeit"| RFB["ReadyForBroadcast"]
+  OTP -->|"【服务器】会话丢失，交易已上链"| AC
+  OTP -->|"【服务器】会话丢失，交易未上链"| RFOP["ReadyForOffboard<br/>带 prior_txid"]
+  RFOP -->|"【服务器】因费率等拒绝"| F2
+  RFOP -.- RFOPL2(["⟲ 【服务器】其他拒绝 → 停泊，继续查找旧交易"])
+  class RFOPL2 loop
+  RFOP -->|"【链】旧交易出现"| AC
+  RFB -->|"【本地】广播"| AC["AwaitingConfirmations<br/>显示 Broadcast"]
+  RFB -.- RFBL3(["⟲ 【服务器】拒绝 → 停泊"])
+  class RFBL3 loop
+  AC -->|"【链】确认"| OK["Confirmed"]
+  AC -.- ACL4(["⟲ 【链源】长期看不到 → 停泊，输入保持锁定"])
+  class ACL4 loop
+  class OK,F1,F2 term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

@@ -1,0 +1,15 @@
+flowchart TD
+  R0(("用户生成发票")) --> AW["AwaitingPayment"]
+  AW -->|"【服务器】准备 HTLC-recv VTXO"| HRd["HtlcsReady<br/>可放弃"]
+  HRd -->|"【服务器】拒绝 /【链】认领窗口关闭"| AB["放弃<br/>付款方被退款"]
+  HRd -->|"【本地】交出原像"| PR["PreimageRevealed"]
+  PR -->|"【服务器】完成认领"| SET["Settled"]
+  PR -->|"【服务器】转交第三方"| DLV["Delivering"]
+  DLV -->|"【服务器】完成"| SET
+  PR -.- PRL1(["⟲ 【服务器】拒绝 → 停泊"])
+  class PRL1 loop
+  class SET,AB term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

@@ -1,0 +1,21 @@
+flowchart TD
+  O0(("Start")) -->|"[User] quote"| OR["Reviewing"]
+  OR -->|"[User] confirm: sign, lock inputs"| OS["Submitting<br/>inputs locked"]
+  OS -->|"[Server] no cosignature yet"| OU["Unknown<br/>inputs locked"]
+  OS -->|"[Server] terms changed"| OF1["Failed<br/>inputs locked"]
+  OU -->|"[Server] terms changed"| OF1
+  OU -->|"[Server] cosigns"| BB
+  OS -->|"[Server] cosigns, verified"| BB["Bark Broadcasting<br/>VTXO stored as Locked"]
+  BB -->|"[Chain] seen on chain"| BC["Bark Confirming<br/>shown as Broadcast → WaitingForArk"]
+  BC -->|"[Server] registered"| OC["Completed<br/>in Ark"]
+  BC -.- BCL1(["⟲ [Server] registration failed → retry"])
+  class BCL1 loop
+  BC -->|"[Maintenance] near expiry, auto exit"| OF2["Failed<br/>funds enter the exit flow"]
+  BB -->|"[Chain] inputs spent by a conflicting tx"| OF3["Failed<br/>funds never left"]
+  BC -->|"[Chain] inputs spent by a conflicting tx"| OF3
+  class OC,OF1,OF2,OF3 term
+  class OR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

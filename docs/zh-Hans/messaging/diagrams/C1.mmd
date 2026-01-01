@@ -1,0 +1,15 @@
+flowchart TD
+  A(("用户发送")) --> J["发送作业<br/>Fetching / Uploading / Preparing"]
+  J -->|"【本地】终态错误码"| F["Failed"]
+  J -.- JL1(["⟲ 【会话 / 群】可重试失败 → 1s…60s 退避重试"])
+  class JL1 loop
+  J -->|"【用户】撤销（Text / Files，尚无传输事件）"| CX["已撤销"]
+  J -->|"【本地】交给传输层"| S["Sending<br/>传输事件 + 每 relay 投递行"]
+  S -->|"【relay】主要单元业务成功"| OK["Succeeded"]
+  S -->|"【relay】传输策略判终态"| TF["Failed<br/>可手动重试"]
+  J -->|"【用户】删除整个会话 / 身份"| GONE["作业删除"]
+  class OK,TF,F,CX,GONE term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

@@ -1,0 +1,17 @@
+flowchart TD
+  U(("使用者用助記詞恢復 Ark")) --> REG["賬戶登記<br/>預留寫 None，recovery_pending"]
+  REG -->|"【伺服器】掃描各 epoch"| Q{"結果"}
+  Q -->|"全部完成"| OK["Restored"]
+  Q -->|"伺服器無記錄"| NF["NotFound"]
+  Q -->|"伺服器不可用"| UA["Unavailable"]
+  Q -->|"伺服器身份變化"| IC["IdentityChanged"]
+  Q -->|"任一 epoch 不完整"| IN["Incomplete<br/>合作操作暫停"]
+  IN -->|"【使用者】再次恢復"| REG
+  REG -->|"【使用者】擴大金鑰掃描"| KS["KeyScan<br/>Ready → LimitReached / CandidatesMatched"]
+  class OK,NF,UA,IC term
+  class IN,KS user
+  class Q gate
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

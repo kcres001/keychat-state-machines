@@ -1,0 +1,20 @@
+flowchart TD
+  U(("招待を送信 / 受信")) --> P["pending"]
+  P -->|"【リレー】配信失敗"| F["failed"]
+  F -->|"【MLS 送信者】配信を再試行"| P
+  P -->|"【ユーザー】承認"| A["accepted<br/>Welcome: PendingAcknowledgement"]
+  A -->|"【ローカル】有効化の制御メッセージを送信"| FN["finalizing"]
+  FN -->|"【リレー OK / 認証済みの相手の証拠】"| EN["enabled<br/>Welcome: Active"]
+  A -.- AL1(["⟲ 【ローカル】有効化の再試行"])
+  class AL1 loop
+  P -->|"【ユーザー】辞退"| DC["declined"]
+  P -->|"【ユーザー】取り下げ"| CN["canceled"]
+  P -->|"【時間】期限切れ"| EX["expired"]
+  P -->|"【ユーザー】削除"| RP["removePending"]
+  RP -->|"【復旧】削除を確認"| DC
+  class EN,DC,CN,EX term
+  class F user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

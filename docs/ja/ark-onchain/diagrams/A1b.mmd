@@ -1,0 +1,21 @@
+flowchart TD
+  O0(("開始")) -->|"【ユーザー】見積もり"| OR["Reviewing"]
+  OR -->|"【ユーザー】確認：署名、入力をロック"| OS["Submitting<br/>入力ロック"]
+  OS -->|"【サーバー】共同署名まだなし"| OU["Unknown<br/>入力ロック"]
+  OS -->|"【サーバー】条件変更"| OF1["Failed<br/>入力ロック"]
+  OU -->|"【サーバー】条件変更"| OF1
+  OU -->|"【サーバー】共同署名"| BB
+  OS -->|"【サーバー】共同署名、検証済み"| BB["Bark Broadcasting<br/>VTXO は Locked で保存"]
+  BB -->|"【チェーン】チェーン上で確認"| BC["Bark Confirming<br/>表示は Broadcast → WaitingForArk"]
+  BC -->|"【サーバー】登録済み"| OC["Completed<br/>Ark 内"]
+  BC -.- BCL1(["⟲ 【サーバー】登録失敗 → 再試行"])
+  class BCL1 loop
+  BC -->|"【メンテナンス】期限間近、自動退出"| OF2["Failed<br/>資金は退出フローへ"]
+  BB -->|"【チェーン】入力が競合 tx に使われた"| OF3["Failed<br/>資金は移動していない"]
+  BC -->|"【チェーン】入力が競合 tx に使われた"| OF3
+  class OC,OF1,OF2,OF3 term
+  class OR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

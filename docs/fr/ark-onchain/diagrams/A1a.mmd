@@ -1,0 +1,21 @@
+flowchart TD
+  D0(("Début")) -->|"[Utilisateur] devis"| DR["Reviewing<br/>PSBT non signé, valable 300 s"]
+  DR -->|"[Utilisateur] confirmer : signer et enregistrer dans BDK"| DS["Submitting"]
+  DS -->|"[Source de chaîne] vue dans le mempool"| DB["Broadcast"]
+  DS -->|"[Source de chaîne] requête échouée ou invisible"| DU["Unknown"]
+  DB -->|"[Chaîne] confirmée"| DC["Completed"]
+  DU -->|"[Maintenance / interrogation] rediffusion acceptée"| DB
+  DU -->|"[Chaîne] confirmée"| DC
+  DB -->|"[Source de chaîne] sortie du mempool"| DU
+  DC -->|"[Chaîne] réorganisation"| DU
+  DB -->|"[Utilisateur] demander une accélération"| AR["Devis d'accélération Reviewing<br/>valable 300 s"]
+  AR -->|"[Utilisateur] annuler"| DB
+  AR -->|"[Utilisateur] confirmer : signer le remplacement"| DB
+  DS -.- DSL1(["⟲ [Reprise au démarrage] réenregistrer ; rediffuser si absente"])
+  class DSL1 loop
+  class DC term
+  class DR,AR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

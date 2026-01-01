@@ -1,0 +1,12 @@
+flowchart TD
+  R["Remote"] -->|"【使用者】下載"| DG["Downloading"]
+  DG -->|"【媒體伺服器】完成"| DD["Downloaded"]
+  DG -->|"【媒體伺服器】失敗"| DF["Failed"]
+  DG -->|"【啟動恢復】發現中斷"| DF
+  DF -->|"【使用者】重試"| DG
+  DD -.->|"本地檔案被清理"| R
+  class DD term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

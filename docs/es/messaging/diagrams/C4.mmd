@@ -1,0 +1,20 @@
+flowchart TD
+  U(("Invitación enviada / recibida")) --> P["pending"]
+  P -->|"[Relay] entrega fallida"| F["failed"]
+  F -->|"[Remitente MLS] reintentar entrega"| P
+  P -->|"[Usuario] aceptar"| A["accepted<br/>Welcome: PendingAcknowledgement"]
+  A -->|"[Local] enviar mensaje de control de activación"| FN["finalizing"]
+  FN -->|"[OK del relay / evidencia autenticada del otro participante]"| EN["enabled<br/>Welcome: Active"]
+  A -.- AL1(["⟲ [Local] reintento de activación"])
+  class AL1 loop
+  P -->|"[Usuario] rechazar"| DC["declined"]
+  P -->|"[Usuario] retirar"| CN["canceled"]
+  P -->|"[Tiempo] caducada"| EX["expired"]
+  P -->|"[Usuario] borrar"| RP["removePending"]
+  RP -->|"[Recuperación] borrado confirmado"| DC
+  class EN,DC,CN,EX term
+  class F user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

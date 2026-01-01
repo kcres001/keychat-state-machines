@@ -1,0 +1,22 @@
+flowchart TD
+  SW["NonInteractivePending · espera programada<br/>entradas sin bloquear"]
+  SW -->|"[Cadena] se alcanza la altura objetivo"| DP
+  SW -->|"[Usuario] retirada para salida forzada"| RET["Retirada"]
+  SUB(("Enviar actualización delegada")) --> DP["NonInteractivePending · delegada<br/>entradas bloqueadas, contabilizadas en pending_in_round"]
+  DP -.- DPL1(["⟲ [Servidor] esperando una ronda"])
+  class DPL1 loop
+  DP -->|"[Servidor] ronda emitida"| FIN
+  IS(("Envío interactivo")) --> IP["InteractivePending"]
+  IP -->|"[Servidor] empieza la ronda"| IO["InteractiveOngoing"]
+  IP -->|"[Local] entradas perdidas, no se puede reducir"| CAN["Canceled"]
+  IO -->|"[Servidor] interacción terminada"| FIN["Finished<br/>esperando confirmación de la tx de financiación"]
+  IO -->|"[Servidor] fallo"| FAIL["Failed"]
+  FIN -.- FINL2(["⟲ [Cadena] esperando confirmación"])
+  class FINL2 loop
+  FIN -->|"[Cadena] confirmada + forfeits hechos"| OK["Confirmed<br/>VTXO nuevos"]
+  class OK,FAIL,CAN,RET term
+  class SW user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

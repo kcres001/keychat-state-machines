@@ -1,0 +1,21 @@
+flowchart TD
+  D0(("Start")) -->|"[User] quote"| DR["Reviewing<br/>Unsigned PSBT, valid 300 s"]
+  DR -->|"[User] confirm: sign and register in BDK"| DS["Submitting"]
+  DS -->|"[Chain source] seen in mempool"| DB["Broadcast"]
+  DS -->|"[Chain source] query failed or not visible"| DU["Unknown"]
+  DB -->|"[Chain] confirmed"| DC["Completed"]
+  DU -->|"[Maintenance / polling] rebroadcast accepted"| DB
+  DU -->|"[Chain] confirmed"| DC
+  DB -->|"[Chain source] dropped from mempool"| DU
+  DC -->|"[Chain] reorg"| DU
+  DB -->|"[User] request acceleration"| AR["Acceleration quote Reviewing<br/>valid 300 s"]
+  AR -->|"[User] cancel"| DB
+  AR -->|"[User] confirm: sign replacement"| DB
+  DS -.- DSL1(["⟲ [Startup recovery] re-register; rebroadcast if absent"])
+  class DSL1 loop
+  class DC term
+  class DR,AR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

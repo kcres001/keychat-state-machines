@@ -1,0 +1,11 @@
+flowchart TD
+  UP["上传中"] -->|"【媒体服务器】完成"| UOK["交给发送器"]
+  UP -->|"【媒体服务器】失败"| PS["暂停"]
+  PS -->|"【用户】重试（可重试类错误）"| UP
+  PS -->|"【用户】撤销消息"| UC["已撤销"]
+  class UOK,UC term
+  class PS user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

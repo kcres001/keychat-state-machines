@@ -1,0 +1,26 @@
+flowchart TD
+  U(("El usuario inicia la salida forzada")) --> G1{"Comprobación previa de Keychat<br/>¿pending_board, pending_lightning_send y pending_exit a 0?"}
+  G1 -->|"No"| BLK["Rechazado"]
+  G1 -->|"Sí"| G2{"Comprobación previa de Bark<br/>¿todas las rondas en espera programada? ¿todos los registros de actualización con prueba previa al forfeit?"}
+  G2 -->|"No"| BLK
+  G2 -->|"Sí: candidatos son los VTXO gastables y los retenidos por recuperación"| S["Start / Processing<br/>publicación nivel a nivel, el BTC compartido paga el CPFP"]
+  AUTO(("Salida automática")) --> S
+  S -.- SL1(["⟲ [Mantenimiento] BTC compartido insuficiente → esperar fondos"])
+  class SL1 loop
+  S -->|"[Cadena] todas las tx de salida confirmadas"| AD["AwaitingDelta<br/>timelock en curso"]
+  AD -->|"[Cadena] timelock vencido"| CL["Claimable"]
+  S -->|"[Usuario] cancelar antes de la tx final"| CA["Canceled<br/>VTXO aún gastable"]
+  S -->|"[Off-chain] VTXO ya gastado / [Servidor] barrido a mitad de la salida"| GONE["VtxoAlreadySpent / VtxoSwept"]
+  CL -->|"[Usuario] confirmar cotización de reclamación"| P["Reclamación Prepared<br/>tx firmada persistida, entradas vinculadas"]
+  P -->|"[Usuario] enviar: primero el estado, luego publicar"| SB["Submitting"]
+  SB -->|"[Fuente de cadena] publicación aceptada"| SD["Submitted<br/>Bark: ClaimInProgress"]
+  SD -->|"[Cadena] confirmada, persistida"| CF["Confirmed / Claimed"]
+  SD -->|"[Cadena] confirmada, falló la escritura"| CK["ConfirmationCheckpointRequired"]
+  CK -->|"[Usuario] actualizar"| CF
+  class CF,GONE,BLK term
+  class CA,CK,P user
+  class G1,G2 gate
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

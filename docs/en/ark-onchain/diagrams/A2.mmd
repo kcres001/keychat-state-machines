@@ -1,0 +1,29 @@
+flowchart TD
+  Q(("Start")) -->|"[User] confirm quote"| ST["Start<br/>shown as Preparing"]
+  ST -->|"[Local] lock inputs"| SP["SplitWithArkoor"]
+  ST -->|"[Local] lock failed"| F1["Failed"]
+  SP -->|"[Server] arkoor cosigned, inputs marked spent"| ARR["ArkoorRegistrationRequired<br/>send VTXO and change locked by the action"]
+  SP -->|"[Server] rejects"| F2["Failed<br/>inputs released"]
+  ARR -->|"[Server] registered, change unlocked"| RFO["ReadyForOffboard"]
+  ARR -.- ARRL1(["⟲ [Server] registration failed → retry"])
+  class ARRL1 loop
+  RFO -->|"[Server] builds offboard tx"| OTP["OffboardTxPrepared"]
+  RFO -->|"[Server] rejects"| F2
+  OTP -->|"[Server] forfeits exchanged"| RFB["ReadyForBroadcast"]
+  OTP -->|"[Server] session lost, tx on chain"| AC
+  OTP -->|"[Server] session lost, tx not on chain"| RFOP["ReadyForOffboard<br/>with prior_txid"]
+  RFOP -->|"[Server] rejects (e.g. fee rate)"| F2
+  RFOP -.- RFOPL2(["⟲ [Server] other rejection → park, keep looking for prior tx"])
+  class RFOPL2 loop
+  RFOP -->|"[Chain] prior tx appears"| AC
+  RFB -->|"[Local] broadcast"| AC["AwaitingConfirmations<br/>shown as Broadcast"]
+  RFB -.- RFBL3(["⟲ [Server] rejects → park"])
+  class RFBL3 loop
+  AC -->|"[Chain] confirmed"| OK["Confirmed"]
+  AC -.- ACL4(["⟲ [Chain source] not seen for long → park, inputs stay locked"])
+  class ACL4 loop
+  class OK,F1,F2 term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

@@ -1,0 +1,29 @@
+flowchart TD
+  Q(("開始")) -->|"【ユーザー】見積もりを確認"| ST["Start<br/>表示は Preparing"]
+  ST -->|"【ローカル】入力をロック"| SP["SplitWithArkoor"]
+  ST -->|"【ローカル】ロック失敗"| F1["Failed"]
+  SP -->|"【サーバー】arkoor 共同署名、入力を使用済みにマーク"| ARR["ArkoorRegistrationRequired<br/>送金 VTXO とおつりをアクションがロック"]
+  SP -->|"【サーバー】拒否"| F2["Failed<br/>入力を解放"]
+  ARR -->|"【サーバー】登録済み、おつりのロック解除"| RFO["ReadyForOffboard"]
+  ARR -.- ARRL1(["⟲ 【サーバー】登録失敗 → 再試行"])
+  class ARRL1 loop
+  RFO -->|"【サーバー】offboard tx を構築"| OTP["OffboardTxPrepared"]
+  RFO -->|"【サーバー】拒否"| F2
+  OTP -->|"【サーバー】forfeit を交換"| RFB["ReadyForBroadcast"]
+  OTP -->|"【サーバー】セッション喪失、tx はチェーン上"| AC
+  OTP -->|"【サーバー】セッション喪失、tx はチェーン上にない"| RFOP["ReadyForOffboard<br/>prior_txid あり"]
+  RFOP -->|"【サーバー】拒否（手数料率など）"| F2
+  RFOP -.- RFOPL2(["⟲ 【サーバー】その他の拒否 → 待機し、以前の tx を探し続ける"])
+  class RFOPL2 loop
+  RFOP -->|"【チェーン】以前の tx が出現"| AC
+  RFB -->|"【ローカル】ブロードキャスト"| AC["AwaitingConfirmations<br/>表示は Broadcast"]
+  RFB -.- RFBL3(["⟲ 【サーバー】拒否 → 待機"])
+  class RFBL3 loop
+  AC -->|"【チェーン】確定"| OK["Confirmed"]
+  AC -.- ACL4(["⟲ 【チェーンソース】長時間見えない → 待機、入力はロックのまま"])
+  class ACL4 loop
+  class OK,F1,F2 term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

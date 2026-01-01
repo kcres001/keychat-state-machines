@@ -1,0 +1,15 @@
+flowchart TD
+  A(("ユーザーが送信")) --> J["送信ジョブ<br/>Fetching / Uploading / Preparing"]
+  J -->|"【ローカル】終了エラーコード"| F["Failed"]
+  J -.- JL1(["⟲ 【セッション / グループ】再試行可能な失敗 → 1 秒…60 秒のバックオフ"])
+  class JL1 loop
+  J -->|"【ユーザー】取り消し（Text / Files、トランスポートイベントなし）"| CX["取り消し済み"]
+  J -->|"【ローカル】トランスポートに渡す"| S["Sending<br/>トランスポートイベント + リレーごとの行"]
+  S -->|"【リレー】主要ユニット成功"| OK["Succeeded"]
+  S -->|"【リレー】トランスポートポリシーで終了"| TF["Failed<br/>手動再試行"]
+  J -->|"【ユーザー】会話 / アイデンティティを削除"| GONE["ジョブ削除"]
+  class OK,TF,F,CX,GONE term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

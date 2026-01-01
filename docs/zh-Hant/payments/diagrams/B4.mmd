@@ -1,0 +1,18 @@
+flowchart TD
+  D(("訊息投遞到收費 relay")) -->|"【本地】生成郵資 token"| CR["Created<br/>token 交給 relay"]
+  D -->|"relay 不收費"| NR["NotRequired"]
+  CR -->|"【relay】OK"| OKD["投遞成功"]
+  CR -->|"【relay】失敗 / 超時 / 無 OK"| FD["投遞失敗"]
+  FD -->|"【使用者】檢視詳情"| AV["Available"]
+  FD -->|"無唯一對應傳送"| UA["Unavailable"]
+  AV -->|"【使用者】找回：投遞行置終態，意圖落庫"| PRC["Processing"]
+  PRC -->|"【mint】證明全部已花"| UA
+  PRC -.- PRCL1(["⟲ 【mint】不可達 / 狀態不明 → 使用者再次找回"])
+  class PRCL1 loop
+  PRC -->|"【mint】交換完成"| RC["Reclaimed"]
+  class OKD,NR,UA,RC term
+  class PRC user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

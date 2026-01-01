@@ -1,0 +1,29 @@
+flowchart TD
+  Q(("Début")) -->|"[Utilisateur] confirmer le devis"| ST["Start<br/>affiché Preparing"]
+  ST -->|"[Local] verrouiller les entrées"| SP["SplitWithArkoor"]
+  ST -->|"[Local] échec du verrouillage"| F1["Failed"]
+  SP -->|"[Serveur] arkoor cosigné, entrées marquées dépensées"| ARR["ArkoorRegistrationRequired<br/>VTXO d'envoi et monnaie verrouillés par l'action"]
+  SP -->|"[Serveur] refuse"| F2["Failed<br/>entrées libérées"]
+  ARR -->|"[Serveur] enregistré, monnaie déverrouillée"| RFO["ReadyForOffboard"]
+  ARR -.- ARRL1(["⟲ [Serveur] échec d'enregistrement → nouvel essai"])
+  class ARRL1 loop
+  RFO -->|"[Serveur] construit la tx d'offboard"| OTP["OffboardTxPrepared"]
+  RFO -->|"[Serveur] refuse"| F2
+  OTP -->|"[Serveur] forfeits échangés"| RFB["ReadyForBroadcast"]
+  OTP -->|"[Serveur] session perdue, tx sur la chaîne"| AC
+  OTP -->|"[Serveur] session perdue, tx absente de la chaîne"| RFOP["ReadyForOffboard<br/>avec prior_txid"]
+  RFOP -->|"[Serveur] refuse (p. ex. taux de frais)"| F2
+  RFOP -.- RFOPL2(["⟲ [Serveur] autre refus → en attente, continuer à chercher l'ancienne tx"])
+  class RFOPL2 loop
+  RFOP -->|"[Chaîne] l'ancienne tx apparaît"| AC
+  RFB -->|"[Local] diffuser"| AC["AwaitingConfirmations<br/>affiché Broadcast"]
+  RFB -.- RFBL3(["⟲ [Serveur] refuse → en attente"])
+  class RFBL3 loop
+  AC -->|"[Chaîne] confirmée"| OK["Confirmed"]
+  AC -.- ACL4(["⟲ [Source de chaîne] invisible longtemps → en attente, entrées toujours verrouillées"])
+  class ACL4 loop
+  class OK,F1,F2 term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

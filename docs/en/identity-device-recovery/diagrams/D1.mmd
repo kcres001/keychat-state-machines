@@ -1,0 +1,15 @@
+flowchart TD
+  U(("User confirms identity deletion")) --> P1["PlatformCredentialPending<br/>deletion plan written, active calls ended"]
+  P1 -->|"[User] roll back (this phase only)"| RB["Deletion canceled"]
+  P1 -->|"[Platform] keychain credentials deleted"| P2["CoreFinalizePending"]
+  P2 -->|"[Local] Core cleanup done"| DONE["Deletion complete"]
+  P2 -.- P2L1(["⟲ [Local] resume after interruption"])
+  class P2L1 loop
+  L(("Legacy deletion flow")) --> L1["LegacyCorePending"]
+  L1 --> L2["LegacyPlatformSecretPending"]
+  L2 -->|"[User] confirm legacy secret deleted"| DONE
+  class DONE,RB term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

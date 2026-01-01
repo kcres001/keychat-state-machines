@@ -1,0 +1,26 @@
+flowchart TD
+  U(("User starts force exit")) --> G1{"Keychat precheck<br/>pending_board, pending_lightning_send, pending_exit all 0?"}
+  G1 -->|"No"| BLK["Refused"]
+  G1 -->|"Yes"| G2{"Bark precheck<br/>all rounds scheduled-waiting? all refresh records have pre-forfeit proof?"}
+  G2 -->|"No"| BLK
+  G2 -->|"Yes: candidates are spendable and recovery-held VTXOs"| S["Start / Processing<br/>broadcast level by level, shared BTC pays CPFP"]
+  AUTO(("Automatic exit")) --> S
+  S -.- SL1(["⟲ [Maintenance] insufficient shared BTC → wait for funds"])
+  class SL1 loop
+  S -->|"[Chain] all exit txs confirmed"| AD["AwaitingDelta<br/>timelock running"]
+  AD -->|"[Chain] timelock expired"| CL["Claimable"]
+  S -->|"[User] cancel before final tx"| CA["Canceled<br/>VTXO still spendable"]
+  S -->|"[Off-chain] VTXO already spent / [Server] swept mid-exit"| GONE["VtxoAlreadySpent / VtxoSwept"]
+  CL -->|"[User] confirm claim quote"| P["Claim Prepared<br/>signed tx persisted, inputs bound"]
+  P -->|"[User] submit: state first, then broadcast"| SB["Submitting"]
+  SB -->|"[Chain source] broadcast accepted"| SD["Submitted<br/>Bark: ClaimInProgress"]
+  SD -->|"[Chain] confirmed, persisted"| CF["Confirmed / Claimed"]
+  SD -->|"[Chain] confirmed, write failed"| CK["ConfirmationCheckpointRequired"]
+  CK -->|"[User] refresh"| CF
+  class CF,GONE,BLK term
+  class CA,CK,P user
+  class G1,G2 gate
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

@@ -1,0 +1,17 @@
+flowchart TD
+  U(("ユーザーが購入を確認")) --> PRE["preparing<br/>注文を書き込み"]
+  PRE -->|"【ウォレット】トークン発行失敗"| FL["failed"]
+  PRE -->|"【ウォレット】トークン発行と書き込み"| PEN["pending<br/>トークンは注文内"]
+  PEN -->|"【notify】処理中"| REC["reconciling"]
+  REC --> PEN
+  PEN -->|"【notify】成功"| SUC["succeeded<br/>パスは利用可能 / 使用中 / 使用済み"]
+  REC -->|"【notify】成功"| SUC
+  PEN -->|"【notify】失敗"| FL
+  REC -->|"【notify】失敗"| FL
+  PEN -.- PENL1(["⟲ 【ユーザー】支払い記録ページで更新"])
+  class PENL1 loop
+  class SUC,FL term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

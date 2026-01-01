@@ -1,0 +1,11 @@
+flowchart TD
+  UP["アップロード中"] -->|"【メディアサーバー】完了"| UOK["送信器に渡した"]
+  UP -->|"【メディアサーバー】失敗"| PS["一時停止"]
+  PS -->|"【ユーザー】再試行（再試行可能なエラー）"| UP
+  PS -->|"【ユーザー】メッセージを取り消す"| UC["取り消し済み"]
+  class UOK,UC term
+  class PS user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

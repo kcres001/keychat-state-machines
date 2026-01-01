@@ -1,0 +1,26 @@
+flowchart TD
+  U(("使用者發起強退")) --> G1{"Keychat 前置檢查<br/>pending_board、pending_lightning_send、pending_exit 均為 0？"}
+  G1 -->|"否"| BLK["拒絕發起"]
+  G1 -->|"是"| G2{"Bark 前置檢查<br/>輪次均為計劃等待？重新整理記錄均有未 forfeit 證明？"}
+  G2 -->|"否"| BLK
+  G2 -->|"是：候選為可花 VTXO 與恢復持有的 VTXO"| S["Start / Processing<br/>逐層廣播，共享 BTC 付 CPFP"]
+  AUTO(("系統自動退出")) --> S
+  S -.- SL1(["⟲ 【維護】共享 BTC 資金不足 → 等待補充"])
+  class SL1 loop
+  S -->|"【鏈】全部退出交易確認"| AD["AwaitingDelta<br/>時間鎖執行中"]
+  AD -->|"【鏈】時間鎖到期"| CL["Claimable"]
+  S -->|"【使用者】最終交易廣播前取消"| CA["Canceled<br/>VTXO 仍可花"]
+  S -->|"【鏈下】VTXO 已被花 /【伺服器】中途清掃"| GONE["VtxoAlreadySpent / VtxoSwept"]
+  CL -->|"【使用者】確認認領報價"| P["認領 Prepared<br/>簽名交易落庫，輸入繫結"]
+  P -->|"【使用者】提交：先改狀態再廣播"| SB["Submitting"]
+  SB -->|"【鏈源】廣播成功"| SD["Submitted<br/>Bark：ClaimInProgress"]
+  SD -->|"【鏈】確認並寫庫"| CF["Confirmed / Claimed"]
+  SD -->|"【鏈】確認，寫庫失敗"| CK["ConfirmationCheckpointRequired"]
+  CK -->|"【使用者】重新整理"| CF
+  class CF,GONE,BLK term
+  class CA,CK,P user
+  class G1,G2 gate
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

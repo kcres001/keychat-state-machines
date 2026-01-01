@@ -1,0 +1,20 @@
+flowchart TD
+  U(("發出 / 收到邀請")) --> P["pending"]
+  P -->|"【relay】投遞失敗"| F["failed"]
+  F -->|"【MLS 發出方】重試投遞"| P
+  P -->|"【使用者】接受"| A["accepted<br/>Welcome：PendingAcknowledgement"]
+  A -->|"【本地】發出啟用控制訊息"| FN["finalizing"]
+  FN -->|"【relay OK / 對端認證證據】"| EN["enabled<br/>Welcome：Active"]
+  A -.- AL1(["⟲ 【本地】啟用重試"])
+  class AL1 loop
+  P -->|"【使用者】拒絕"| DC["declined"]
+  P -->|"【使用者】撤回"| CN["canceled"]
+  P -->|"【時間】過期"| EX["expired"]
+  P -->|"【使用者】刪除"| RP["removePending"]
+  RP -->|"【恢復】確認刪除"| DC
+  class EN,DC,CN,EX term
+  class F user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

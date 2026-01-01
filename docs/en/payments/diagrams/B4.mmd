@@ -1,0 +1,18 @@
+flowchart TD
+  D(("Message delivered to a paid relay")) -->|"[Local] create postage token"| CR["Created<br/>token given to relay"]
+  D -->|"relay is free"| NR["NotRequired"]
+  CR -->|"[Relay] OK"| OKD["Delivered"]
+  CR -->|"[Relay] failed / timeout / no OK"| FD["Delivery failed"]
+  FD -->|"[User] open details"| AV["Available"]
+  FD -->|"no unique matching send"| UA["Unavailable"]
+  AV -->|"[User] reclaim: delivery row terminal, intent persisted"| PRC["Processing"]
+  PRC -->|"[Mint] all proofs spent"| UA
+  PRC -.- PRCL1(["⟲ [Mint] unreachable / unclear → user retries"])
+  class PRCL1 loop
+  PRC -->|"[Mint] swap complete"| RC["Reclaimed"]
+  class OKD,NR,UA,RC term
+  class PRC user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

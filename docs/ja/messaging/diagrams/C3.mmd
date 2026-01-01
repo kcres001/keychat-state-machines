@@ -1,0 +1,15 @@
+flowchart TD
+  U(("ユーザーが友達リクエストを送信")) --> P["Pending<br/>配信再試行スケジューラ内"]
+  P -->|"【リレー】受理"| PB["Published"]
+  P -->|"【ユーザー】取り下げ"| C["取り下げ済み"]
+  PB -->|"【ユーザー】取り下げ"| C
+  P -->|"【ユーザー】同じ相手に新しいリクエスト"| SP["置き換え済み"]
+  PB -->|"【相手】承認"| OK["連絡先"]
+  PB -.- PBL1(["⟲ 【相手】返信なし → 待つ"])
+  class PBL1 loop
+  class OK,C,SP term
+  class PB user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

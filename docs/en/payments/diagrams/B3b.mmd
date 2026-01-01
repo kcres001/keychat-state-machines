@@ -1,0 +1,17 @@
+flowchart TD
+  M0(("Payment message received")) --> AV["Available"]
+  AV -->|"[Recipient] claim: record phase first"| ACC["Accepting<br/>claiming, retryable"]
+  ACC -->|"[Mint] redeemed, receipt sent"| ACD["Accepted"]
+  AV -->|"[Peer] receipt: claimed / refunded"| ACD
+  ACC -->|"[Peer] receipt: claimed / refunded"| ACD
+  ACC -.- ACCL1(["⟲ [Mint] redeem failed → retry"])
+  class ACCL1 loop
+  AV -->|"[Sender] refund after red packet expiry"| RF["Refunding<br/>UI auto-resumes"]
+  RF -->|"[Mint] self-redeemed, receipt sent"| RFD["Refunded"]
+  RF -->|"[Mint] already claimed"| SU["SpentUnattributed (sender)"]
+  class ACD,RFD,SU term
+  class ACC,RF user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

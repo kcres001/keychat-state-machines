@@ -1,0 +1,26 @@
+flowchart TD
+  U(("L'utilisateur lance une sortie forcée")) --> G1{"Pré-vérification Keychat<br/>pending_board, pending_lightning_send et pending_exit tous à 0 ?"}
+  G1 -->|"Non"| BLK["Refusé"]
+  G1 -->|"Oui"| G2{"Pré-vérification Bark<br/>tous les rounds en attente planifiée ? tous les rafraîchissements avec preuve antérieure au forfeit ?"}
+  G2 -->|"Non"| BLK
+  G2 -->|"Oui : candidats = VTXO dépensables et VTXO détenus par la récupération"| S["Start / Processing<br/>diffusion niveau par niveau, le BTC partagé paie le CPFP"]
+  AUTO(("Sortie automatique")) --> S
+  S -.- SL1(["⟲ [Maintenance] BTC partagé insuffisant → attendre des fonds"])
+  class SL1 loop
+  S -->|"[Chaîne] toutes les tx de sortie confirmées"| AD["AwaitingDelta<br/>timelock en cours"]
+  AD -->|"[Chaîne] timelock échu"| CL["Claimable"]
+  S -->|"[Utilisateur] annuler avant la tx finale"| CA["Canceled<br/>VTXO toujours dépensable"]
+  S -->|"[Hors chaîne] VTXO déjà dépensé / [Serveur] balayé en cours de sortie"| GONE["VtxoAlreadySpent / VtxoSwept"]
+  CL -->|"[Utilisateur] confirmer le devis de réclamation"| P["Réclamation Prepared<br/>tx signée persistée, entrées liées"]
+  P -->|"[Utilisateur] soumettre : l'état d'abord, puis la diffusion"| SB["Submitting"]
+  SB -->|"[Source de chaîne] diffusion acceptée"| SD["Submitted<br/>Bark: ClaimInProgress"]
+  SD -->|"[Chaîne] confirmée, persistée"| CF["Confirmed / Claimed"]
+  SD -->|"[Chaîne] confirmée, écriture échouée"| CK["ConfirmationCheckpointRequired"]
+  CK -->|"[Utilisateur] actualiser"| CF
+  class CF,GONE,BLK term
+  class CA,CK,P user
+  class G1,G2 gate
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

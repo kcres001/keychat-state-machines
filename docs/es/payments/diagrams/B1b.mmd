@@ -1,0 +1,15 @@
+flowchart TD
+  R0(("El usuario crea una factura")) --> AW["AwaitingPayment"]
+  AW -->|"[Servidor] prepara VTXO HTLC-recv"| HRd["HtlcsReady<br/>se puede abandonar"]
+  HRd -->|"[Servidor] rechaza / [Cadena] se cierra la ventana de reclamación"| AB["Abandonado<br/>pagador reembolsado"]
+  HRd -->|"[Local] revelar la preimagen"| PR["PreimageRevealed"]
+  PR -->|"[Servidor] completa la reclamación"| SET["Settled"]
+  PR -->|"[Servidor] reenvía a un tercero"| DLV["Delivering"]
+  DLV -->|"[Servidor] hecho"| SET
+  PR -.- PRL1(["⟲ [Servidor] rechaza → en espera"])
+  class PRL1 loop
+  class SET,AB term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

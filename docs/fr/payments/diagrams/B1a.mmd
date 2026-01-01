@@ -1,0 +1,19 @@
+flowchart TD
+  S0(("L'utilisateur confirme le paiement")) --> SS["Start / InputsLocked<br/>entrées verrouillées"]
+  SS -->|"[Serveur] refuse"| SF["Failed<br/>entrées libérées"]
+  SS -->|"[Local] proche de l'expiration, non commencé"| SF
+  SS -->|"[Serveur] cosigne le HTLC"| HR["HtlcReceived<br/>compté dans pending_lightning_send"]
+  HR -->|"[Serveur] accepté"| PI["PaymentInitiated"]
+  PI -->|"[Serveur] succès, préimage"| PAID["Paid"]
+  PI -.- PIL1(["⟲ [Serveur] Pending"])
+  class PIL1 loop
+  PI -->|"[Serveur] échec, ou [Chaîne] proche de l'expiration du HTLC"| RV["RevocableHtlcs"]
+  RV -->|"[Serveur] cosigne la révocation"| BACK["Révoqué<br/>retour à des VTXO dépensables"]
+  RV -->|"[Serveur] refuse la révocation"| STK["RevocationStuck"]
+  STK -.- STKL2(["⟲ [Serveur] refuse encore → nouvel essai / en attente"])
+  class STKL2 loop
+  class PAID,BACK,SF term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

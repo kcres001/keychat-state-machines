@@ -1,0 +1,17 @@
+flowchart TD
+  T(("トークン受信、ユーザーが受け取る")) -->|"ミント登録済み"| AC["Accepted<br/>トークンをローカル保存"]
+  T -->|"ミント未登録"| BL["Blocked · UnknownMint"]
+  BL -->|"【ユーザー】ミントを追加"| AC
+  AC -->|"【メンテナンス / ユーザー】照合"| RC["Reconciling"]
+  RC -->|"【ミント】入金 / 受け取り済み / 復旧"| TOK["Terminal<br/>受け取り済み"]
+  RC -->|"【ミント】トークン使用済み"| TSP["Terminal · AlreadySpent"]
+  RC -.- RCL1(["⟲ 【ミント】saga 未完了 → 照合を続ける"])
+  class RCL1 loop
+  RC -->|"【ミント】エラー、SDK 操作 ID なし"| RD["RetryDue<br/>30 秒後に再試行"]
+  RD -->|"【メンテナンス】30 秒経過"| RC
+  class TOK,TSP term
+  class BL user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

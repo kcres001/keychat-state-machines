@@ -1,0 +1,17 @@
+flowchart TD
+  T(("Token recibido, el usuario reclama")) -->|"mint registrado"| AC["Accepted<br/>token guardado localmente"]
+  T -->|"mint no registrado"| BL["Blocked · UnknownMint"]
+  BL -->|"[Usuario] añadir mint"| AC
+  AC -->|"[Mantenimiento / usuario] conciliar"| RC["Reconciling"]
+  RC -->|"[Mint] abonado / ya recibido / recuperado"| TOK["Terminal<br/>recibido"]
+  RC -->|"[Mint] token ya gastado"| TSP["Terminal · AlreadySpent"]
+  RC -.- RCL1(["⟲ [Mint] saga incompleta → seguir conciliando"])
+  class RCL1 loop
+  RC -->|"[Mint] error, sin id de operación del SDK"| RD["RetryDue<br/>reintento en 30 s"]
+  RD -->|"[Mantenimiento] pasaron 30 s"| RC
+  class TOK,TSP term
+  class BL user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

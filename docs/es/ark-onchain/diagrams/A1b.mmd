@@ -1,0 +1,21 @@
+flowchart TD
+  O0(("Inicio")) -->|"[Usuario] cotizar"| OR["Reviewing"]
+  OR -->|"[Usuario] confirmar: firmar, bloquear entradas"| OS["Submitting<br/>entradas bloqueadas"]
+  OS -->|"[Servidor] aún sin cofirma"| OU["Unknown<br/>entradas bloqueadas"]
+  OS -->|"[Servidor] cambian las condiciones"| OF1["Failed<br/>entradas bloqueadas"]
+  OU -->|"[Servidor] cambian las condiciones"| OF1
+  OU -->|"[Servidor] cofirma"| BB
+  OS -->|"[Servidor] cofirma, verificada"| BB["Bark Broadcasting<br/>VTXO guardado como Locked"]
+  BB -->|"[Cadena] vista en cadena"| BC["Bark Confirming<br/>se muestra como Broadcast → WaitingForArk"]
+  BC -->|"[Servidor] registrado"| OC["Completed<br/>en Ark"]
+  BC -.- BCL1(["⟲ [Servidor] registro fallido → reintento"])
+  class BCL1 loop
+  BC -->|"[Mantenimiento] cerca del vencimiento, salida automática"| OF2["Failed<br/>los fondos entran en el flujo de salida"]
+  BB -->|"[Cadena] entradas gastadas por una tx en conflicto"| OF3["Failed<br/>los fondos nunca salieron"]
+  BC -->|"[Cadena] entradas gastadas por una tx en conflicto"| OF3
+  class OC,OF1,OF2,OF3 term
+  class OR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

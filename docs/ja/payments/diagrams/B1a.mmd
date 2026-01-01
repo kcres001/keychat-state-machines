@@ -1,0 +1,19 @@
+flowchart TD
+  S0(("ユーザーが支払いを確認")) --> SS["Start / InputsLocked<br/>入力ロック"]
+  SS -->|"【サーバー】拒否"| SF["Failed<br/>入力を解放"]
+  SS -->|"【ローカル】期限間近、未開始"| SF
+  SS -->|"【サーバー】HTLC に共同署名"| HR["HtlcReceived<br/>pending_lightning_send に計上"]
+  HR -->|"【サーバー】受理"| PI["PaymentInitiated"]
+  PI -->|"【サーバー】成功、プリイメージ"| PAID["Paid"]
+  PI -.- PIL1(["⟲ 【サーバー】Pending"])
+  class PIL1 loop
+  PI -->|"【サーバー】失敗、または【チェーン】HTLC 期限間近"| RV["RevocableHtlcs"]
+  RV -->|"【サーバー】取り消しに共同署名"| BACK["取り消し済み<br/>使用可能な VTXO に戻る"]
+  RV -->|"【サーバー】取り消しを拒否"| STK["RevocationStuck"]
+  STK -.- STKL2(["⟲ 【サーバー】引き続き拒否 → 再試行 / 待機"])
+  class STKL2 loop
+  class PAID,BACK,SF term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

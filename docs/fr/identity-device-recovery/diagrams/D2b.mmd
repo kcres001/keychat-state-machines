@@ -1,0 +1,15 @@
+flowchart TD
+  B0(("L'utilisateur lance la restauration")) --> PP["preparing / prepared<br/>zone de préparation, données d'origine intactes"]
+  PP --> RSd["replacement_started"]
+  RSd --> RI["restored_data_installed"]
+  RI --> V["validated"]
+  V --> CM["committed"]
+  PP -.->|"[Reprise au démarrage] plantage → nettoyer la zone de préparation"| CLN["Données d'origine conservées"]
+  RSd -.->|"[Reprise au démarrage] plantage → retour à l'instantané"| RBK["Retour arrière effectué, journal marqué committed"]
+  RI -.->|"[Reprise au démarrage]"| RBK
+  V -.->|"[Reprise au démarrage]"| RBK
+  class CM,CLN,RBK term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

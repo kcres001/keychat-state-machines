@@ -1,0 +1,17 @@
+flowchart TD
+  M0(("收到付款消息")) --> AV["Available"]
+  AV -->|"【收款方】领取：先记录阶段"| ACC["Accepting<br/>领取中，可重试"]
+  ACC -->|"【mint】赎回成功并发回执"| ACD["Accepted"]
+  AV -->|"【对端】回执：已领 / 已退"| ACD
+  ACC -->|"【对端】回执：已领 / 已退"| ACD
+  ACC -.- ACCL1(["⟲ 【mint】赎回失败 → 重试"])
+  class ACCL1 loop
+  AV -->|"【发送方】红包过期后退回"| RF["Refunding<br/>界面自动续做"]
+  RF -->|"【mint】自赎成功并发回执"| RFD["Refunded"]
+  RF -->|"【mint】已被领"| SU["SpentUnattributed（发送方）"]
+  class ACD,RFD,SU term
+  class ACC,RF user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

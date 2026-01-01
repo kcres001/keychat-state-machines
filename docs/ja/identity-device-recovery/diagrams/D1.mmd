@@ -1,0 +1,15 @@
+flowchart TD
+  U(("ユーザーがアイデンティティ削除を確認")) --> P1["PlatformCredentialPending<br/>削除計画を書き込み、進行中の通話を終了"]
+  P1 -->|"【ユーザー】ロールバック（この段階のみ）"| RB["削除を取り消し"]
+  P1 -->|"【プラットフォーム】キーチェーン資格情報を削除"| P2["CoreFinalizePending"]
+  P2 -->|"【ローカル】Core の清掃完了"| DONE["削除完了"]
+  P2 -.- P2L1(["⟲ 【ローカル】中断後に再開"])
+  class P2L1 loop
+  L(("旧削除フロー")) --> L1["LegacyCorePending"]
+  L1 --> L2["LegacyPlatformSecretPending"]
+  L2 -->|"【ユーザー】旧シークレットの削除を確認"| DONE
+  class DONE,RB term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

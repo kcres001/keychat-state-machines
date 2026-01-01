@@ -1,0 +1,15 @@
+flowchart TD
+  B0(("User starts restore")) --> PP["preparing / prepared<br/>staging, original data untouched"]
+  PP --> RSd["replacement_started"]
+  RSd --> RI["restored_data_installed"]
+  RI --> V["validated"]
+  V --> CM["committed"]
+  PP -.->|"[Startup recovery] crash → clean staging"| CLN["Original data kept"]
+  RSd -.->|"[Startup recovery] crash → roll back to snapshot"| RBK["Rolled back, journal marked committed"]
+  RI -.->|"[Startup recovery]"| RBK
+  V -.->|"[Startup recovery]"| RBK
+  class CM,CLN,RBK term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

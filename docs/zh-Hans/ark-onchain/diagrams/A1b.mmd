@@ -1,0 +1,21 @@
+flowchart TD
+  O0(("开始")) -->|"【用户】报价"| OR["Reviewing"]
+  OR -->|"【用户】确认：签名，输入加锁"| OS["Submitting<br/>输入锁定"]
+  OS -->|"【服务器】未返回联签"| OU["Unknown<br/>输入锁定"]
+  OS -->|"【服务器】条款变化"| OF1["Failed<br/>输入锁定"]
+  OU -->|"【服务器】条款变化"| OF1
+  OU -->|"【服务器】联签"| BB
+  OS -->|"【服务器】联签并验证"| BB["Bark Broadcasting<br/>VTXO 以 Locked 存库"]
+  BB -->|"【链】见到上链"| BC["Bark Confirming<br/>显示 Broadcast → WaitingForArk"]
+  BC -->|"【服务器】登记成功"| OC["Completed<br/>在 Ark"]
+  BC -.- BCL1(["⟲ 【服务器】登记失败 → 重试"])
+  class BCL1 loop
+  BC -->|"【维护】临近到期，自动退出"| OF2["Failed<br/>资金进入退出流程"]
+  BB -->|"【链】输入被冲突交易花费"| OF3["Failed<br/>资金未离开"]
+  BC -->|"【链】输入被冲突交易花费"| OF3
+  class OC,OF1,OF2,OF3 term
+  class OR user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

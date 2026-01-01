@@ -1,0 +1,17 @@
+flowchart TD
+  M0(("Mensaje de pago recibido")) --> AV["Available"]
+  AV -->|"[Destinatario] reclamar: primero se guarda la fase"| ACC["Accepting<br/>reclamando, reintentable"]
+  ACC -->|"[Mint] canjeado, recibo enviado"| ACD["Accepted"]
+  AV -->|"[Otro participante] recibo: reclamado / reembolsado"| ACD
+  ACC -->|"[Otro participante] recibo: reclamado / reembolsado"| ACD
+  ACC -.- ACCL1(["⟲ [Mint] canje fallido → reintento"])
+  class ACCL1 loop
+  AV -->|"[Remitente] reembolso tras caducar el sobre rojo"| RF["Refunding<br/>la interfaz lo reanuda sola"]
+  RF -->|"[Mint] autocanjeado, recibo enviado"| RFD["Refunded"]
+  RF -->|"[Mint] ya reclamado"| SU["SpentUnattributed (remitente)"]
+  class ACD,RFD,SU term
+  class ACC,RF user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

@@ -1,0 +1,15 @@
+flowchart TD
+  B0(("ユーザーが復元を開始")) --> PP["preparing / prepared<br/>ステージング、元データは変更なし"]
+  PP --> RSd["replacement_started"]
+  RSd --> RI["restored_data_installed"]
+  RI --> V["validated"]
+  V --> CM["committed"]
+  PP -.->|"【起動時復旧】クラッシュ → ステージングを清掃"| CLN["元データを保持"]
+  RSd -.->|"【起動時復旧】クラッシュ → スナップショットへロールバック"| RBK["ロールバック完了、ジャーナルは committed"]
+  RI -.->|"【起動時復旧】"| RBK
+  V -.->|"【起動時復旧】"| RBK
+  class CM,CLN,RBK term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

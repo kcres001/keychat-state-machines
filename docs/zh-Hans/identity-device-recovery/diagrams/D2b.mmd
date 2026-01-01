@@ -1,0 +1,15 @@
+flowchart TD
+  B0(("用户开始恢复")) --> PP["preparing / prepared<br/>暂存区，原数据未动"]
+  PP --> RSd["replacement_started"]
+  RSd --> RI["restored_data_installed"]
+  RI --> V["validated"]
+  V --> CM["committed"]
+  PP -.->|"【启动恢复】崩溃 → 清理暂存"| CLN["回到原数据"]
+  RSd -.->|"【启动恢复】崩溃 → 回滚快照"| RBK["回滚完成，日志记为 committed"]
+  RI -.->|"【启动恢复】"| RBK
+  V -.->|"【启动恢复】"| RBK
+  class CM,CLN,RBK term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

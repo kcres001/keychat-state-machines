@@ -1,0 +1,18 @@
+flowchart TD
+  D(("Mensaje entregado a un relay de pago")) -->|"[Local] crear token de franqueo"| CR["Created<br/>token entregado al relay"]
+  D -->|"el relay es gratuito"| NR["NotRequired"]
+  CR -->|"[Relay] OK"| OKD["Entregado"]
+  CR -->|"[Relay] fallo / tiempo agotado / sin OK"| FD["Entrega fallida"]
+  FD -->|"[Usuario] abrir detalles"| AV["Available"]
+  FD -->|"sin envío único correspondiente"| UA["Unavailable"]
+  AV -->|"[Usuario] recuperar: fila de entrega final, intención persistida"| PRC["Processing"]
+  PRC -->|"[Mint] todas las pruebas gastadas"| UA
+  PRC -.- PRCL1(["⟲ [Mint] inalcanzable / incierto → el usuario reintenta"])
+  class PRCL1 loop
+  PRC -->|"[Mint] intercambio completo"| RC["Reclaimed"]
+  class OKD,NR,UA,RC term
+  class PRC user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

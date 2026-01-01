@@ -1,0 +1,18 @@
+flowchart TD
+  N(("新賬戶登記")) --> I["Idle · Some(0)"]
+  RC(("恢復賬戶登記")) --> UN["Unavailable · None<br/>同網路直接傳送與 onboard 暫不可用"]
+  I -->|"【維護】出現退出且可估算"| A["Active · Some(n)<br/>n sat 從可用餘額扣除"]
+  I -->|"【維護】首次發現退出且估算失敗"| UN
+  A -->|"【維護】估算失敗，保留上次可信值"| US["Unavailable · Some(上次值)"]
+  US -->|"【維護】重估成功"| A
+  A -->|"【維護】沒有未認領的退出"| I
+  UN -->|"【維護】完整估算成功"| A
+  A -->|"【恢復】恢復出新退出"| PR["待登記的恢復退出"]
+  PR -->|"【維護】Bark 檢查點齊全"| A
+  A -.- AL1(["⟲ 【使用者】發起強退：先寫新預留；失敗且未登記則回滾"])
+  class AL1 loop
+  class I term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

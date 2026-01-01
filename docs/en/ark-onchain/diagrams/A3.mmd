@@ -1,0 +1,18 @@
+flowchart TD
+  N(("New account registered")) --> I["Idle · Some(0)"]
+  RC(("Recovered account registered")) --> UN["Unavailable · None<br/>direct sends and onboards on the network unavailable"]
+  I -->|"[Maintenance] exit present, estimable"| A["Active · Some(n)<br/>n sat deducted from available balance"]
+  I -->|"[Maintenance] first exit found, estimate failed"| UN
+  A -->|"[Maintenance] estimate failed, keep last trusted value"| US["Unavailable · Some(last value)"]
+  US -->|"[Maintenance] re-estimated"| A
+  A -->|"[Maintenance] no unclaimed exits"| I
+  UN -->|"[Maintenance] complete estimate"| A
+  A -->|"[Recovery] new exit recovered"| PR["Recovered exits pending registration"]
+  PR -->|"[Maintenance] Bark checkpoints complete"| A
+  A -.- AL1(["⟲ [User] force exit: write new reserve first; roll back if not recorded"])
+  class AL1 loop
+  class I term
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

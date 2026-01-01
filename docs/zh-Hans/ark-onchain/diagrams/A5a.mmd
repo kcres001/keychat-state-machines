@@ -1,0 +1,22 @@
+flowchart TD
+  SW["NonInteractivePending · 计划等待<br/>输入未锁"]
+  SW -->|"【链】到达目标高度"| DP
+  SW -->|"【用户】强退时撤回"| RET["撤回"]
+  SUB(("提交委托刷新")) --> DP["NonInteractivePending · 委托等待<br/>输入锁定，计入 pending_in_round"]
+  DP -.- DPL1(["⟲ 【服务器】等待出轮次"])
+  class DPL1 loop
+  DP -->|"【服务器】出轮次"| FIN
+  IS(("交互式提交")) --> IP["InteractivePending"]
+  IP -->|"【服务器】轮次开始"| IO["InteractiveOngoing"]
+  IP -->|"【本地】输入丢失且无法缩减"| CAN["Canceled"]
+  IO -->|"【服务器】交互完成"| FIN["Finished<br/>等待资金交易确认"]
+  IO -->|"【服务器】失败"| FAIL["Failed"]
+  FIN -.- FINL2(["⟲ 【链】等待确认"])
+  class FINL2 loop
+  FIN -->|"【链】确认 + forfeit 完成"| OK["Confirmed<br/>新 VTXO"]
+  class OK,FAIL,CAN,RET term
+  class SW user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

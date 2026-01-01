@@ -1,0 +1,15 @@
+flowchart TD
+  MI["Idle / Disabled"] -->|"【維護】到期，計劃透過"| MRd["Ready"]
+  MI -->|"【維護】計劃需人工處理"| MH["AuthorizationRequired / ManualReview / NeedsFunds"]
+  MH -->|"【使用者】授權 / 複核 / 補資金"| MRd
+  MRd -->|"【維護】提交"| MRf["Refreshing"]
+  MRf -->|"【伺服器】證據 Succeeded / Rejected"| MI
+  MRf -->|"【本地】失敗且無未決提交"| MRt["Retrying<br/>60s → 30min 退避"]
+  MRt -->|"【維護 / 網路恢復】"| MRd
+  MRf -->|"【本地】提交結果不明"| MRq["RecoveryRequired<br/>先恢復再提交"]
+  MRq -->|"【伺服器】證據到達"| MI
+  class MH,MRq user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

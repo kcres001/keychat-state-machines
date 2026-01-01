@@ -1,0 +1,15 @@
+flowchart TD
+  MI["Idle / Disabled"] -->|"【メンテナンス】期限到来、計画承認"| MRd["Ready"]
+  MI -->|"【メンテナンス】計画にユーザー対応が必要"| MH["AuthorizationRequired / ManualReview / NeedsFunds"]
+  MH -->|"【ユーザー】承認 / 確認 / 資金追加"| MRd
+  MRd -->|"【メンテナンス】提出"| MRf["Refreshing"]
+  MRf -->|"【サーバー】証拠 Succeeded / Rejected"| MI
+  MRf -->|"【ローカル】失敗、未決の提出なし"| MRt["Retrying<br/>60 秒 → 30 分のバックオフ"]
+  MRt -->|"【メンテナンス / ネットワーク復帰】"| MRd
+  MRf -->|"【ローカル】提出結果不明"| MRq["RecoveryRequired<br/>提出前に復旧"]
+  MRq -->|"【サーバー】証拠が届く"| MI
+  class MH,MRq user
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px

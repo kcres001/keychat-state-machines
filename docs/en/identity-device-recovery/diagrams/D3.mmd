@@ -1,0 +1,17 @@
+flowchart TD
+  U(("User restores Ark from mnemonic")) --> REG["Account registered<br/>reserve None, recovery_pending"]
+  REG -->|"[Server] scan epochs"| Q{"Result"}
+  Q -->|"all complete"| OK["Restored"]
+  Q -->|"no server record"| NF["NotFound"]
+  Q -->|"server unavailable"| UA["Unavailable"]
+  Q -->|"server identity changed"| IC["IdentityChanged"]
+  Q -->|"some epoch incomplete"| IN["Incomplete<br/>cooperative operations paused"]
+  IN -->|"[User] recover again"| REG
+  REG -->|"[User] extend key scan"| KS["KeyScan<br/>Ready → LimitReached / CandidatesMatched"]
+  class OK,NF,UA,IC term
+  class IN,KS user
+  class Q gate
+  classDef term fill:#d8f0d8,stroke:#2e7d32,color:#1b3d1b
+  classDef user fill:#fff1c4,stroke:#b8860b,color:#4a3800
+  classDef gate fill:#e3e8f8,stroke:#3949ab,color:#1a237e
+  classDef loop fill:#fafafa,stroke:#777,stroke-dasharray:3 3,color:#333,font-size:12px
